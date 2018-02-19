@@ -1,0 +1,29 @@
+import numpy as np
+from math import pi
+from scipy.special import wofz
+from matplotlib import pyplot as plt
+
+def xs_from_res(ap, A, res_E, J, gn, gg, gfa, gfb, temp, energy, reaction):
+    sigma_pot = 4*pi*ap**2
+    k_b = 8.6173e-5 #[ev/K]
+    xs = 0
+    for i in range(len(res_E)):
+        g_tot = gn[i]+gg[i]+gfa[i]+gfb[i]
+        r = 2603911/res_E[i]*(A+1)/A
+        q = 2*(r*sigma_pot)**0.5
+        x = 2*(energy-res_E[i])/g_tot
+        if temp==0:
+            psi = 1/(1+x**2)
+            chi = x/(1+x**2)
+        else:
+            xi = g_tot*(A/(4*k_b*temp*res_E[i]))**0.5
+            psi = pi**0.5*np.real(xi*wofz((x+1j)*xi))
+            chi = pi**0.5*np.imag(xi*wofz((x+1j)*xi))
+        if reaction=='capture':
+            res_xs = gn[i]*gg[i]/g_tot**2*(res_E[i]/energy)**0.5*r*psi
+        elif reaction=='elastic':
+            res_xs = (gn[i]/g_tot)**2*(r*psi+g_tot/gn[i]*q*chi)
+        xs += res_xs
+    if reaction=='elastic':
+        xs += sigma_pot
+    return xs
