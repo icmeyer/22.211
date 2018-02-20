@@ -1,7 +1,6 @@
 import numpy as np
 from math import pi
 from scipy.special import wofz
-from matplotlib import pyplot as plt
 
 def xs_from_res(ap, A, res_E, J, gn, gg, gfa, gfb, temp, energy, reaction):
     sigma_pot = 4*pi*ap**2
