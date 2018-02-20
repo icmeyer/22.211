@@ -87,22 +87,22 @@ plt.cla()
 plt.close()
 
 #Plot single cross section to check
-points = 100000
-energies = np.logspace(-1,3,points)
-capture_xs = np.zeros([points])
-elastic_xs = np.zeros([points])
-total_xs = np.zeros([points])
-temp = 0
-for j in range(points):
-    capture_xs[j]=xs_from_res(ap,A,res_E,J,gn,gg,
-                                     gfa,gfb,temp,energies[j],
-                                     reaction='capture')
-    elastic_xs[j]=xs_from_res(ap,A,res_E,J,gn,gg,
-                                     gfa,gfb,temp,energies[j],
-                                     reaction='elastic')
-total_xs =capture_xs+elastic_xs
-plt.loglog(energies,elastic_xs)
-plt.show()
+# points = 100000
+# energies = np.logspace(-1,3,points)
+# capture_xs = np.zeros([points])
+# elastic_xs = np.zeros([points])
+# total_xs = np.zeros([points])
+# temp = 0
+# for j in range(points):
+#     capture_xs[j]=xs_from_res(ap,A,res_E,J,gn,gg,
+#                                      gfa,gfb,temp,energies[j],
+#                                      reaction='capture')
+#     elastic_xs[j]=xs_from_res(ap,A,res_E,J,gn,gg,
+#                                      gfa,gfb,temp,energies[j],
+#                                      reaction='elastic')
+# total_xs =capture_xs+elastic_xs
+# plt.loglog(energies,elastic_xs)
+# plt.show()
 print(xs_from_res(ap,A,res_E,J,gn,gg,gfa,gfb,0.0001,6.67,reaction='elastic'))
 print(sum(total_xs >=0))
 print(sum(capture_xs >=0))

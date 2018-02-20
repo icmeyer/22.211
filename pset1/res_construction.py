@@ -2,7 +2,7 @@ import numpy as np
 from math import pi
 from scipy.special import wofz
 
-def xs_from_res(ap, A, res_E, J, gn, gg, gfa, gfb, temp, energy, reaction):
+def xs_from_res(ap, A, res_E, J, gn, gg, gfa, gfb, temp, energy, reaction, comp='all'):
     sigma_pot = 4*pi*ap**2
     k_b = 8.6173e-5 #[ev/K]
     xs = 0
@@ -18,11 +18,18 @@ def xs_from_res(ap, A, res_E, J, gn, gg, gfa, gfb, temp, energy, reaction):
             xi = g_tot*(A/(4*k_b*temp*res_E[i]))**0.5
             psi = pi**0.5*np.real(xi*wofz((x+1j)*xi))
             chi = pi**0.5*np.imag(xi*wofz((x+1j)*xi))
+            if comp=='psi':
+                chi = 0
+            if comp=='chi':
+                psi = 0
+            if comp=='pot':
+                chi = 0
+                psi = 0
         if reaction=='capture':
             res_xs = gn[i]*gg[i]/g_tot**2*(res_E[i]/energy)**0.5*r*psi
         elif reaction=='elastic':
             res_xs = (gn[i]/g_tot)**2*(r*psi+g_tot/gn[i]*q*chi)
         xs += res_xs
-    if reaction=='elastic':
+    if reaction=='elastic' and comp!='psi' and comp!='chi':
         xs += sigma_pot
     return xs
