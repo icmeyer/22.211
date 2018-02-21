@@ -45,20 +45,18 @@ def zerod_mc(mf_ratio,temp, neutrons, logemin, logemax, nbins, pick_res=[False,0
             capture_xs_macro = capture_xs_micro
             fuel_xs_macro = elastic_xs_macro+capture_xs_macro
             total_xs_macro = mod_xs_macro + fuel_xs_macro
+            e_freq += e_freq_step/total_xs_macro
             mf_random = np.random.uniform(0,1)
             if mf_random < fuel_xs_macro/total_xs_macro:                         #Fuel reaction
                 collision_random = np.random.uniform(0,1)
                 if collision_random < capture_xs_macro/fuel_xs_macro:     #Capture in fuel
-                    e_freq += e_freq_step/capture_xs_macro
                     captures += 1
                     break
-                e_freq += e_freq_step/elastic_xs_macro
-                scat_freq += e_freq_step/elastic_xs_macro
+                scat_freq += e_freq_step
                 alpha = ((A-1)/(A+1))**2
                 energy = (energy-alpha*energy)*np.random.uniform(0,1)+alpha*energy    #Scatter in fuel
             elif mf_random > fuel_xs_macro/total_xs_macro:
                 energy = np.random.uniform(0,1)*energy #Scatter in moderator
-                e_freq += e_freq_step/mod_xs_macro
     e_freq = np.concatenate([[0],e_freq])/neutrons
     scat_freq = np.concatenate([[0],scat_freq])/neutrons
     abs_ratio = captures/neutrons
