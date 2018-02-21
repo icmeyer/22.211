@@ -8,11 +8,12 @@ from nslowing import nslowing
 
 plot_1a = False
 plot_2abc = False
-plot_3a = True
+plot_3a = False
 plot_3b = False
-plot_3c = False
+plot_3c = True
 
 if plot_1a:
+    points = 100000
     energies = np.linspace(0.01,100,points); temp = 0;
     plt.subplot(2,1,1)
     capture_xs, elastic_xs, total_xs = full_xs(energies,temp)
@@ -29,6 +30,7 @@ if plot_1a:
     
     energies = np.linspace(0.01,100,points); temp = 1000;
     plt.subplot(2,1,2)
+    capture_xs, elastic_xs, total_xs = full_xs(energies,temp)
     plt.loglog(energies,capture_xs,'C0')
     plt.loglog(energies,elastic_xs,'C1')
     plt.loglog(energies,total_xs,'C2')
@@ -119,7 +121,6 @@ if plot_3a or plot_3b:
 if plot_3c:
     ax = plt.subplot(1,1,1)
     ax.set_xscale("log", nonposx='clip')
-    ax.set_yscale("log", nonposx='clip')
     legend_string = []
     neutrons = 100000; logemin = 0; logemax = 2; nbins = 75; temp = 1000;
     mf_ratio = 1000;
