@@ -59,6 +59,14 @@ for i in range(n_cells):
 print(grid_boundaries)
 print(grid_mats)
 
+###################
+# Create tallies  #
+###################
+collision_based_s1 = np.zeros([n_cells])
+collision_based_s2 = np.zeros([n_cells])
+pl_based_s1 = np.zeros([n_cells])
+pl_based_s2 = np.zeros([n_cells])
+
 #################
 # Material Data #
 #################
@@ -78,7 +86,7 @@ def get_grid_info(grid_boundaries,grid_mats,neutron_x):
         xs_total = mats_xs_total[material]
         xs_abs = mats_xs_abs[material]
     except: #leaked
-        cell = []; material = []; xs_total = []; xs_abs=[];
+        cell = 'void'; material = []; xs_total = []; xs_abs=[];
     return xs_total,xs_abs,cell,material
 
     
@@ -112,62 +120,73 @@ def rhat_prime(rhat_naut):
 #########################
 ### Run Some Neutrons ###
 #########################
-# Initialize neutron
-nps = 1000
+nps = 10000
 for i in range(nps):
     print("~~~~~~~~~~~~~~ Baby Neutron:",i,"~~~~~~~~~~~~~~~")
+    ##### Initialize counters #####
+    collision_counter = np.zeros([n_cells]) 
+    pl_counter = np.zeros([n_cells])
     ##### Initialize our baby neutron #####
     neutron_x = rand()*total_width
     neutron_rhat = rand_unit_vector()
     neutron_v = 0 #Unused in this problem
     while True:
-        print("Position",neutron_x,"Unit Vector",neutron_rhat,np.linalg.norm(neutron_rhat))
+        print("Top of big loop, Position",neutron_x,"Unit Vector",neutron_rhat,np.linalg.norm(neutron_rhat))
         xs_total,xs_abs,cell,material = get_grid_info(grid_boundaries,grid_mats,neutron_x)
         ##### Move that baby #####
-        neutron_x += neutron_rhat[0]*sample_d(xs_total)
-        print(neutron_x)
-        xs_total,xs_abs,new_cell,new_material = get_grid_info(grid_boundaries,grid_mats,neutron_x)
+        path_length = neutron_rhat[0]*sample_d(xs_total)
+        neutron_x += path_length
+        new_xs_total,new_xs_abs,new_cell,new_material = get_grid_info(grid_boundaries,grid_mats,neutron_x)
 
         ##### Handling leakage and change of cell #####
-        if not new_cell:
-            #This shit totally leaked
-            print("Shit totally leaked")
-            break
-        elif new_cell != cell:
-            print("changed cell")
-            while True:
-                print("loop")
+        if new_cell != cell:
+            while True: #This loop will run until the neutron settles in a cell
+                print("Changed cell")
                 if neutron_rhat[0] < 0: #Came from the right
                     cell = cell-1
-                    neutron_x = grid_boundaries[cell+1]+neutron_rhat[0]*sample_d(xs_total)
-                    xs_total,xs_abs,new_cell,new_material = get_grid_info(grid_boundaries,grid_mats,neutron_x)
-                    if new_cell == cell:
+                    if cell == -1:
+                        cell = 'void'
+                        print("Leaked to left")
                         break
-                    elif not new_cell:
-                        print("Shit totally leaked")
+                    neutron_x = grid_boundaries[cell+1]+neutron_rhat[0]*sample_d(xs_total)
+                    new_xs_total,new_xs_abs,new_cell,new_material = get_grid_info(grid_boundaries,grid_mats,neutron_x)
+                    if new_cell == cell:
                         break
                 else: #Came from the left
                     cell = cell+1
+                    if cell == n_cells:
+                        cell = 'void'
+                        print("Leaked to right")
+                        break
                     neutron_x = grid_boundaries[cell]+neutron_rhat[0]*sample_d(xs_total)
-                    xs_total,xs_abs,new_cell,new_material = get_grid_info(grid_boundaries,grid_mats,neutron_x)
+                    new_xs_total,new_xs_abs,new_cell,new_material = get_grid_info(grid_boundaries,grid_mats,neutron_x)
                     if new_cell == cell:
                         break
-                    elif not new_cell:
-                        print("Shit totally leaked")
-                        break
+
         print("Position",neutron_x,"Unit Vector",neutron_rhat,np.linalg.norm(neutron_rhat))
-        if not new_cell:
-            #This shit totally leaked
+        if new_cell=='void': #Remove leaked neutrons
             print("Shit totally leaked")
+            collision_based_s1 += collision_counter
+            collision_based_s2 += collision_counter**2
             break
 
         ##### Actual collision #####
         #Sample isotope (not present because homegeneous in this case
         #Sample collision type
-        if rand()<xs_abs/xs_total:
+        if rand()<new_xs_abs/new_xs_total:
             print("Baby got eaten")
+            collision_based_s1 += collision_counter
+            collision_based_s2 += collision_counter**2
             break
         else:
             print("Baby got bounced!")
+            collision_counter[new_cell] += 1
             neutron_rhat = rhat_prime(neutron_rhat)
+        
+collision_based_mean = collision_based_s1/nps
+collision_based_var = ((1/(nps-1))*(collision_based_s2/nps-collision_based_mean**2))
+
+print(np.vstack([collision_based_mean,collision_based_var,grid_mats]))
+print(grid_boundaries)
+
 
