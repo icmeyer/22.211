@@ -42,7 +42,7 @@ n_regions = 2
 ###################
 ### Create grid ###
 ###################
-grid_width = 0.5
+grid_width = .25
 total_width = 6.0
 n_cells = int(total_width/grid_width)
 grid_boundaries = np.linspace(0,6,n_cells+1) 
@@ -64,8 +64,8 @@ print(grid_mats)
 ###################
 collision_based_s1 = np.zeros([n_cells])
 collision_based_s2 = np.zeros([n_cells])
-pl_based_s1 = np.zeros([n_cells])
-pl_based_s2 = np.zeros([n_cells])
+path_length_s1 = np.zeros([n_cells])
+path_length_s2 = np.zeros([n_cells])
 
 #################
 # Material Data #
@@ -125,68 +125,107 @@ for i in range(nps):
     print("~~~~~~~~~~~~~~ Baby Neutron:",i,"~~~~~~~~~~~~~~~")
     ##### Initialize counters #####
     collision_counter = np.zeros([n_cells]) 
-    pl_counter = np.zeros([n_cells])
+    path_length_counter = np.zeros([n_cells])
     ##### Initialize our baby neutron #####
-    neutron_x = rand()*total_width
+    neutron_x = rand()*region_lengths[0]
     neutron_rhat = rand_unit_vector()
     neutron_v = 0 #Unused in this problem
     while True:
-        print("Top of big loop, Position",neutron_x,"Unit Vector",neutron_rhat,np.linalg.norm(neutron_rhat))
         xs_total,xs_abs,cell,material = get_grid_info(grid_boundaries,grid_mats,neutron_x)
+        print("Before Distance Sample: Position",neutron_x,"Unit Vector",neutron_rhat,"Cell",cell)
         ##### Move that baby #####
         path_length = neutron_rhat[0]*sample_d(xs_total)
-        neutron_x += path_length
-        new_xs_total,new_xs_abs,new_cell,new_material = get_grid_info(grid_boundaries,grid_mats,neutron_x)
+        new_neutron_x = neutron_x + path_length
+        new_xs_total,new_xs_abs,new_cell,new_material = get_grid_info(grid_boundaries,grid_mats,new_neutron_x)
 
         ##### Handling leakage and change of cell #####
         if new_cell != cell:
+            print("Sampled x in new cell. New x:",new_neutron_x)
             while True: #This loop will run until the neutron settles in a cell
-                print("Changed cell")
                 if neutron_rhat[0] < 0: #Came from the right
+                    path_length_counter[cell] += neutron_x-grid_boundaries[cell]
                     cell = cell-1
                     if cell == -1:
-                        cell = 'void'
+                        new_cell = 'void'
                         print("Leaked to left")
                         break
-                    neutron_x = grid_boundaries[cell+1]+neutron_rhat[0]*sample_d(xs_total)
-                    new_xs_total,new_xs_abs,new_cell,new_material = get_grid_info(grid_boundaries,grid_mats,neutron_x)
-                    if new_cell == cell:
+                    else:
+                        neutron_x = grid_boundaries[cell+1]
+                        new_xs_total = get_grid_info(grid_boundaries,grid_mats,neutron_x-0.0001)[0]
+                        path_length = neutron_rhat[0]*sample_d(new_xs_total)
+                        new_neutron_x = neutron_x + path_length
+                        new_xs_total,new_xs_abs,new_cell,new_material = get_grid_info(grid_boundaries,grid_mats,new_neutron_x)
+                    if new_cell == cell: #Break loop if neutron stayed in same cell
                         break
                 else: #Came from the left
+                    path_length_counter[cell] += grid_boundaries[cell+1]-neutron_x
                     cell = cell+1
                     if cell == n_cells:
-                        cell = 'void'
+                        new_cell = 'void'
                         print("Leaked to right")
                         break
-                    neutron_x = grid_boundaries[cell]+neutron_rhat[0]*sample_d(xs_total)
-                    new_xs_total,new_xs_abs,new_cell,new_material = get_grid_info(grid_boundaries,grid_mats,neutron_x)
-                    if new_cell == cell:
+                    else:
+                        neutron_x = grid_boundaries[cell]
+                        new_xs_total = get_grid_info(grid_boundaries,grid_mats,neutron_x+0.0001)[0]
+                        path_length = neutron_rhat[0]*sample_d(new_xs_total)
+                        new_neutron_x = neutron_x + path_length
+                        new_xs_total,new_xs_abs,new_cell,new_material = get_grid_info(grid_boundaries,grid_mats,new_neutron_x)
+                    if new_cell == cell: #Break loop if neutron stayed in same cell
                         break
 
-        print("Position",neutron_x,"Unit Vector",neutron_rhat,np.linalg.norm(neutron_rhat))
         if new_cell=='void': #Remove leaked neutrons
-            print("Shit totally leaked")
+            print("Shit totally leaked: path_length_counter:",path_length_counter)
             collision_based_s1 += collision_counter
             collision_based_s2 += collision_counter**2
-            break
+            path_length_s1 += path_length_counter
+            path_length_s2 += path_length_counter**2
+            break #Exits major loop
+        if new_cell == cell: #Path length counter for movement in same cell
+            neutron_x = new_neutron_x
+            path_length_counter[cell] += abs(path_length)
 
         ##### Actual collision #####
+        collision_counter[new_cell] += 1/new_xs_total
+        print("Before collision: Position",new_neutron_x,"Unit Vector",neutron_rhat,"Cell",new_cell)
+        print(collision_counter)
         #Sample isotope (not present because homegeneous in this case
         #Sample collision type
         if rand()<new_xs_abs/new_xs_total:
-            print("Baby got eaten")
+            print("Baby got eaten: path_length_counter:",path_length_counter)
             collision_based_s1 += collision_counter
             collision_based_s2 += collision_counter**2
-            break
+            path_length_s1 += path_length_counter
+            path_length_s2 += path_length_counter**2
+            break #Exits major loop
         else:
             print("Baby got bounced!")
-            collision_counter[new_cell] += 1
             neutron_rhat = rhat_prime(neutron_rhat)
         
-collision_based_mean = collision_based_s1/nps
-collision_based_var = ((1/(nps-1))*(collision_based_s2/nps-collision_based_mean**2))
+collision_based_mean = collision_based_s1/sum(collision_based_s1)
+collision_based_sd = ((1/(nps-1))*(collision_based_s2/nps-collision_based_mean**2))**(1/2)
+path_length_mean = path_length_s1/sum(path_length_s1)
+path_length_sd = ((1/(nps-1))*(path_length_s2/nps-path_length_mean**2))**(1/2)
 
-print(np.vstack([collision_based_mean,collision_based_var,grid_mats]))
+print('Collision')
+print(np.vstack([collision_based_mean,collision_based_sd]))
+print('Path Length')
+print(np.vstack([path_length_mean,path_length_sd]))
+print('Divided')
+print(collision_based_mean/path_length_mean)
+print('Divided after normalization')
+print(collision_based_mean/sum(collision_based_mean)/path_length_mean/sum(path_length_mean))
 print(grid_boundaries)
+
+#### Plotting Junk ####
+collision_plot = np.concatenate([[0],collision_based_mean])
+pl_plot = np.concatenate([[0],path_length_mean])
+plt.step(grid_boundaries,collision_plot,color='C0')
+plt.errorbar(grid_boundaries[:-1]+0.5*grid_width,collision_based_mean,yerr=collision_based_sd,fmt='o',markersize=1,capsize=3,color='C0')
+plt.step(grid_boundaries,pl_plot,color='C1')
+plt.errorbar(grid_boundaries[:-1]+0.5*grid_width,path_length_mean,yerr=path_length_sd,fmt='o',markersize=1,capsize=3,color='C1')
+plt.legend(['Collison Based','Path Length Based'])
+plt.xlabel('1d Cells (cm)')
+plt.ylabel('Relative Flux (dimensionless for 1D Problem)')
+plt.show()
 
 
