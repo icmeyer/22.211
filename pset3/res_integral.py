@@ -25,6 +25,7 @@ def res_integral_inf(energy_min,energy_max,points,temp,lamb,xs_d):
     gfb = [9.990000e-9, 0.000000, 9.770000e-9]
     ap = 0.948 #[barns]
     A = 238
+    sigma_pot = 4*pi*ap**2
     
     energies=np.linspace(energy_min,energy_max,points)
     binwidth = (energy_max-energy_min)/points
@@ -53,6 +54,7 @@ def res_integral_eff(energy_min,energy_max,points,temp,lamb,xs_d):
     gfb = [9.990000e-9, 0.000000, 9.770000e-9]
     ap = 0.948 #[barns]
     A = 238
+    sigma_pot = 4*pi*ap**2
     
     energies=np.linspace(energy_min,energy_max,points)
     binwidth = (energy_max-energy_min)/points
@@ -66,8 +68,8 @@ def res_integral_eff(energy_min,energy_max,points,temp,lamb,xs_d):
         elastic_xs=xs_from_res(ap,A,res_E,J,gn,gg,
                                          gfa,gfb,temp,energy,
                                          reaction='elastic')
-        res_int += capture_xs*(lamb*elastic_xs+xs_d)/(capture_xs+lamb*elastic_xs+xs_d)/energy*binwidth
-        flux_int += (lamb*elastic_xs+xs_d)/(capture_xs+lamb*elastic_xs+xs_d)/energy*binwidth
+        res_int += capture_xs*(lamb*sigma_pot+xs_d)/(capture_xs+lamb*elastic_xs+xs_d)/energy*binwidth
+        flux_int += (lamb*sigma_pot+xs_d)/(capture_xs+lamb*elastic_xs+xs_d)/energy*binwidth
     xs_group = res_int/flux_int
         
     return res_int,xs_group
@@ -77,14 +79,14 @@ print("300 K: ","%.2f %.2f" %res_integral_inf(6,10,10000,300,0,0),"%.2f %.2f" %r
 print("1000 K","%.2f %.2f" %res_integral_inf(6,10,10000, 1000,0,0),"%.2f %.2f" %res_integral_inf(10,25,10000,1000,0,0),"%.2f %.2f" %res_integral_inf(25,50,10000,1000,0,0))
 print("For Problem 4: Narrow and Wide models")
 print("-------------2000 barns bg---------------")
-print("NR lambda = 1","%.2f %.2f" %res_integral_eff(6,10,10000,300,0,2000),"%.2f %.2f" %res_integral_eff(10,25,10000,300,0,2000),"%.2f %.2f" %res_integral_eff(25,50,10000,300,0,20000))
+print("NR lambda = 1","%.2f %.2f" %res_integral_eff(6,10,10000,300,1,2000),"%.2f %.2f" %res_integral_eff(10,25,10000,300,1,2000),"%.2f %.2f" %res_integral_eff(25,50,10000,300,1,20000))
 print("lambda = 0.5","%.2f %.2f" %res_integral_eff(6,10,10000,300,0.5,2000),"%.2f %.2f" %res_integral_eff(10,25,10000,300,0.5,2000),"%.2f %.2f" %res_integral_eff(25,50,10000,300,0.5,20000))
-print("WR lambda = 0","%.2f %.2f" %res_integral_eff(6,10,10000,300,1,2000),"%.2f %.2f" %res_integral_eff(10,25,10000,300,1,2000),"%.2f %.2f" %res_integral_eff(25,50,10000,300,1,20000))
+print("WR lambda = 0","%.2f %.2f" %res_integral_eff(6,10,10000,300,0,2000),"%.2f %.2f" %res_integral_eff(10,25,10000,300,0,2000),"%.2f %.2f" %res_integral_eff(25,50,10000,300,0,20000))
 print("-------------200 barns bg---------------")
-print("NR lambda = 1","%.2f %.2f" %res_integral_eff(6,10,10000,300,0,200),"%.2f %.2f" %res_integral_eff(10,25,10000,300,0,200),"%.2f %.2f" %res_integral_eff(25,50,10000,300,0,200))
+print("NR lambda = 1","%.2f %.2f" %res_integral_eff(6,10,10000,300,1,200),"%.2f %.2f" %res_integral_eff(10,25,10000,300,1,200),"%.2f %.2f" %res_integral_eff(25,50,10000,300,1,200))
 print("lambda = 0.5","%.2f %.2f" %res_integral_eff(6,10,10000,300,0.5,200),"%.2f %.2f" %res_integral_eff(10,25,10000,300,0.5,200),"%.2f %.2f" %res_integral_eff(25,50,10000,300,0.5,200))
-print("WR lambda = 0","%.2f %.2f" %res_integral_eff(6,10,10000,300,1,200),"%.2f %.2f" %res_integral_eff(10,25,10000,300,1,200),"%.2f %.2f" %res_integral_eff(25,50,10000,300,1,200))
+print("WR lambda = 0","%.2f %.2f" %res_integral_eff(6,10,10000,300,0,200),"%.2f %.2f" %res_integral_eff(10,25,10000,300,0,200),"%.2f %.2f" %res_integral_eff(25,50,10000,300,0,200))
 print("-------------20 barns bg---------------")
-print("NR lambda = 1","%.2f %.2f" %res_integral_eff(6,10,10000,300,0,20),"%.2f %.2f" %res_integral_eff(10,25,10000,300,0,20),"%.2f %.2f" %res_integral_eff(25,50,10000,300,0,20))
+print("NR lambda = 1","%.2f %.2f" %res_integral_eff(6,10,10000,300,1,20),"%.2f %.2f" %res_integral_eff(10,25,10000,300,1,20),"%.2f %.2f" %res_integral_eff(25,50,10000,300,1,20))
 print("lambda = 0.5","%.2f %.2f" %res_integral_eff(6,10,10000,300,0.5,20),"%.2f %.2f" %res_integral_eff(10,25,10000,300,0.5,20),"%.2f %.2f" %res_integral_eff(25,50,10000,300,0.5,20))
-print("WR lambda = 0","%.2f %.2f" %res_integral_eff(6,10,10000,300,1,20),"%.2f %.2f" %res_integral_eff(10,25,10000,300,1,20),"%.2f %.2f" %res_integral_eff(25,50,10000,300,1,20))
+print("WR lambda = 0","%.2f %.2f" %res_integral_eff(6,10,10000,300,0,20),"%.2f %.2f" %res_integral_eff(10,25,10000,300,0,20),"%.2f %.2f" %res_integral_eff(25,50,10000,300,0,20))
