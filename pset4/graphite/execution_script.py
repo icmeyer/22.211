@@ -14,20 +14,19 @@ if not os.path.isdir('figures'):
 
 #Range of pitches beginning at 2 cm
 pitches = 2*np.logspace(0,0.5,50)
-
 all_pitches = pd.DataFrame()
 for pitch in pitches:
-    all_tallies = pincellfunction(pitch, 0) #dy2o3_conc is 0
+    all_tallies = pincellfunction(pitch, 3.0) #enrichment is 3.0 percent
     all_pitches = all_pitches.append(all_tallies, ignore_index=True)
 
 # Criticality search for critical Dy2O3 concentation
-concs = np.linspace(0,0.1,50)
-all_concs = pd.DataFrame()
-for conc in concs:
-    all_tallies = pincellfunction(15, conc) #pitch is 15 cm
-    all_concs = all_concs.append(all_tallies, ignore_index=True)
+enrichs = np.linspace(0.5,8,50)
+all_enrichs = pd.DataFrame()
+for enrich in enrichs:
+    all_tallies = pincellfunction(15, enrich) #pitch is 15 cm
+    all_enrichs = all_enrichs.append(all_tallies, ignore_index=True)
 
 #Write results to csv
 os.chdir('..')
 all_pitches.to_csv('results_pitch.csv')
-all_concs.to_csv('results_conc.csv')
+all_enrichs.to_csv('results_enrich.csv')

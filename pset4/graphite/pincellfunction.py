@@ -6,7 +6,7 @@ import pandas as pd
 import subprocess
 
 # dy2o3_conc in atom percent
-def pincellfunction(pitch,dy2o3_conc): 
+def pincellfunction(pitch,enrichment): 
 
     settings = openmc.Settings()
     # Set high tolerance to allow use of lower temperature xs
@@ -19,23 +19,19 @@ def pincellfunction(pitch,dy2o3_conc):
     ###       MATERIALS       ###
     #############################
     uo2 = openmc.Material(1, "uo2")
-    uo2.add_element('U', 1.0, enrichment=3.0)
-    uo2.add_element('U', 1.0) #natural
+    uo2.add_element('U', 1.0, enrichment=enrichment)
     uo2.add_element('O', 2.0)
-    uo2.add_element('Dy', dy2o3_conc*2)
-    uo2.add_element('O', dy2o3_conc*3)
     uo2.remove_nuclide('U234')
     uo2.set_density('g/cm3', 10.97)
     uo2.temperature = 900 #kelvin
     
-    heavy_water = openmc.Material(2, "d2o")
-    heavy_water.add_nuclide('H2', 2.0)
-    heavy_water.add_element('O', 1.0)
-    heavy_water.set_density('g/cm3', 1.11)
-    heavy_water.add_s_alpha_beta('c_D_in_D2O')
-    heavy_water.temperature = 600 #kelvin
+    graphite = openmc.Material(2, "graphite")
+    graphite.set_density('g/cm3', 1.1995)
+    graphite.add_element('C', 1.0)
+    graphite.add_s_alpha_beta('c_Graphite')
+    graphite.temperature = 600 #kelvin
     
-    mats = openmc.Materials([uo2, heavy_water])
+    mats = openmc.Materials([uo2, graphite])
     mats.export_to_xml()
     
     #############################
@@ -53,7 +49,7 @@ def pincellfunction(pitch,dy2o3_conc):
                                        boundary_type='reflective')
     water_region = box & +fuel_or
     moderator = openmc.Cell(2, 'moderator')
-    moderator.fill = heavy_water
+    moderator.fill = graphite
     moderator.region = water_region
     
     root = openmc.Universe(cells=(fuel_cell, moderator))
@@ -118,7 +114,7 @@ def pincellfunction(pitch,dy2o3_conc):
     p.width = (pitch, pitch)
     p.pixels = (200, 200)
     p.color_by = 'material'
-    p.colors = {uo2: 'yellow', heavy_water: 'cyan'}
+    p.colors = {uo2: 'yellow', graphite: 'grey'}
     
     plots = openmc.Plots([p])
     plots.export_to_xml()
@@ -168,11 +164,11 @@ def pincellfunction(pitch,dy2o3_conc):
     eta_df = eta.get_pandas_dataframe()
     
 
-    columns = ['pitch','dy2o3 conc',
+    columns = ['pitch','enrichment',
              'kinf mean','kinf sd','res_esc mean','res_esc sd',
              'fast_fiss mean','fast_fiss sd','therm_util mean',
              'therm_util sd','eta mean','eta sd']
-    data = [[pitch,dy2o3_conc,
+    data = [[pitch,enrichment,
             kinf_df['mean'][0],kinf_df['std. dev.'][0],
             res_esc_df['mean'][0],res_esc_df['std. dev.'][0],
             fast_fiss_df['mean'][0],fast_fiss_df['std. dev.'][0],
