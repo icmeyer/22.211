@@ -62,7 +62,6 @@ def pincellfunction(pitch,enrichment):
     root = openmc.Universe(cells=(fuel_cell, moderator))
     geom = openmc.Geometry(root)
     geom.export_to_xml()
-    universe.plot(width=(2*pitch, 2*pitch))
     
     #####################################
     ###        SOURCE/BATCHES         ###

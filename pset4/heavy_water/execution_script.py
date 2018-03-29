@@ -13,7 +13,7 @@ if not os.path.isdir('figures'):
     os.mkdir('figures')
 
 #Range of pitches beginning at 2 cm
-pitches = 2*np.logspace(0,0.5,50)
+pitches = 2*np.logspace(0,1,50)
 
 all_pitches = pd.DataFrame()
 for pitch in pitches:
@@ -21,10 +21,10 @@ for pitch in pitches:
     all_pitches = all_pitches.append(all_tallies, ignore_index=True)
 
 # Criticality search for critical Dy2O3 concentation
-concs = np.linspace(0,0.1,50)
+concs = np.linspace(0,0.02,50)
 all_concs = pd.DataFrame()
 for conc in concs:
-    all_tallies = pincellfunction(15, conc) #pitch is 15 cm
+    all_tallies = pincellfunction(10.86, conc) #pitch is 10.85 cm
     all_concs = all_concs.append(all_tallies, ignore_index=True)
 
 #Write results to csv
