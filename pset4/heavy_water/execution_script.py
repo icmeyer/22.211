@@ -21,10 +21,11 @@ for pitch in pitches:
     all_pitches = all_pitches.append(all_tallies, ignore_index=True)
 
 # Criticality search for critical Dy2O3 concentation
-concs = np.linspace(0,0.02,50)
+concs = np.linspace(0,0.005,50)
 all_concs = pd.DataFrame()
 for conc in concs:
-    all_tallies = pincellfunction(10.86, conc) #pitch is 10.85 cm
+    pitch = 11.38 #cm
+    all_tallies = pincellfunction(pitch, conc)
     all_concs = all_concs.append(all_tallies, ignore_index=True)
 
 #Write results to csv

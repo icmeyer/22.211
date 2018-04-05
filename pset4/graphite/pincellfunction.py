@@ -1,4 +1,3 @@
-# Script for HW4 Problem 1
 import openmc
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,7 +20,6 @@ def pincellfunction(pitch,enrichment):
     uo2 = openmc.Material(1, "uo2")
     uo2.add_element('U', 1.0, enrichment=enrichment)
     uo2.add_element('O', 2.0)
-    uo2.remove_nuclide('U234')
     uo2.set_density('g/cm3', 10.97)
     uo2.temperature = 900 #kelvin
     

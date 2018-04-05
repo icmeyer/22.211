@@ -1,0 +1,47 @@
+
+ ============================>     TALLY 1     <============================
+
+ Cell 1
+   Incoming Energy [0.0, 4.00000)
+     Total Material
+       Absorption Rate                      0.684512       +/- 3.56336E-03
+       Nu-Fission Rate                      1.28295        +/- 6.72429E-03
+       Fission Rate                         0.526511       +/- 2.75959E-03
+   Incoming Energy [4.00000, 2.00000E+07)
+     Total Material
+       Absorption Rate                      0.245898       +/- 1.38927E-03
+       Nu-Fission Rate                      0.188085       +/- 7.10464E-04
+       Fission Rate                         7.34213E-02    +/- 2.73038E-04
+ Cell 2
+   Incoming Energy [0.0, 4.00000)
+     Total Material
+       Absorption Rate                      0.0            +/- 0.0
+       Nu-Fission Rate                      0.0            +/- 0.0
+       Fission Rate                         0.0            +/- 0.0
+   Incoming Energy [4.00000, 2.00000E+07)
+     Total Material
+       Absorption Rate                      0.0            +/- 0.0
+       Nu-Fission Rate                      0.0            +/- 0.0
+       Fission Rate                         0.0            +/- 0.0
+ Cell 3
+   Incoming Energy [0.0, 4.00000)
+     Total Material
+       Absorption Rate                      3.46092E-03    +/- 1.80667E-05
+       Nu-Fission Rate                      0.0            +/- 0.0
+       Fission Rate                         0.0            +/- 0.0
+   Incoming Energy [4.00000, 2.00000E+07)
+     Total Material
+       Absorption Rate                      4.21227E-03    +/- 6.36525E-05
+       Nu-Fission Rate                      0.0            +/- 0.0
+       Fission Rate                         0.0            +/- 0.0
+ Cell 4
+   Incoming Energy [0.0, 4.00000)
+     Total Material
+       Absorption Rate                      5.98940E-02    +/- 2.91526E-04
+       Nu-Fission Rate                      0.0            +/- 0.0
+       Fission Rate                         0.0            +/- 0.0
+   Incoming Energy [4.00000, 2.00000E+07)
+     Total Material
+       Absorption Rate                      3.80334E-03    +/- 3.34004E-05
+       Nu-Fission Rate                      0.0            +/- 0.0
+       Fission Rate                         0.0            +/- 0.0

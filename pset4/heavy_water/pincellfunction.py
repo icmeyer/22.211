@@ -1,4 +1,3 @@
-# Script for HW4 Problem 1
 import openmc
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,19 +18,18 @@ def pincellfunction(pitch,dy2o3_conc):
     ###       MATERIALS       ###
     #############################
     uo2 = openmc.Material(1, "uo2")
-    uo2.add_element('U', 1.0, enrichment=3.0)
     uo2.add_element('U', 1.0) #natural
     uo2.add_element('O', 2.0)
     uo2.add_element('Dy', dy2o3_conc*2)
     uo2.add_element('O', dy2o3_conc*3)
-    uo2.remove_nuclide('U234')
     uo2.set_density('g/cm3', 10.97)
     uo2.temperature = 900 #kelvin
     
     heavy_water = openmc.Material(2, "d2o")
     heavy_water.add_nuclide('H2', 2.0)
     heavy_water.add_element('O', 1.0)
-    heavy_water.set_density('g/cm3', 1.11)
+    #Using 15.5 MPa for heavy water
+    heavy_water.set_density('g/cm3', 0.723)
     heavy_water.add_s_alpha_beta('c_D_in_D2O')
     heavy_water.temperature = 600 #kelvin
     

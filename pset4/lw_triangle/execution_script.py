@@ -23,7 +23,7 @@ for pitch in pitches:
 #k as a function of volume ratio
 pitches = all_pitches['pitch']
 radius = 0.5
-ratio = ((3**(1/2)/4)*pitches**2-pi*radius**2)/(pi*radius**2)
+ratio = ((3**(1/2)/2)*pitches**2-pi*radius**2)/(pi*radius**2)
 all_pitches = all_pitches.assign(mf_ratio = ratio)
 
 #Write results to csv

@@ -13,8 +13,8 @@ os.chdir('work')
 if not os.path.isdir('figures'):
     os.mkdir('figures')
 
-#Range of pitches beginning at 2 cm
-pitches = 2*np.logspace(0,1,50)
+#Range of pitches beginning at 1 cm
+pitches = np.logspace(0,1,50)+0.001
 all_pitches = pd.DataFrame()
 for pitch in pitches:
     all_tallies = pincellfunction(pitch, 4.0) #enrichment is 4.0 percent
