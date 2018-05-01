@@ -33,6 +33,7 @@ def build_matrix(problem):
         mesh['size'] += ncells
         zones += 1
 
+    ncells = mesh['size']
     matsize = mesh['size'] * 2
     hmat = np.zeros([matsize,matsize])
     fmat = np.zeros([matsize,matsize])
@@ -40,7 +41,6 @@ def build_matrix(problem):
     #Building the first and last line for each group for H matrix
     #First Line
     delta = mesh['spacing'][0]
-    print(mesh['materials'][0])
     nf1 =  mat_properties[mesh['materials'][0]]['NF1']
     nf2 =  mat_properties[mesh['materials'][0]]['NF2']
     sigma_s12 = mat_properties[mesh['materials'][0]]['S12']
@@ -55,12 +55,13 @@ def build_matrix(problem):
     d22 = mat_properties[mesh['materials'][1]]['D2']
     D212 = dtilde(d21,d22,delta)
     #D11 is the D-tilde used in the matrix
-    D11 = 2*d11/delta*(1/(1+4*d11))
-    D21 = 2*d21/delta*(1/(1+4*d21))
-    hmat[0,0] = sigma_r11+D11+D112
+    D11 = 2*d11/delta*(1/(1+4*d11/delta))
+    D21 = 2*d21/delta*(1/(1+4*d21/delta))
+    hmat[0,0] = sigma_r11*delta+D11+D112
     hmat[0,1] = -D112
-    hmat[ncells,ncells] = sigma_a2+D11+D112
+    hmat[ncells,ncells] = sigma_a2*delta+D21+D212
     hmat[ncells,ncells+1] = -D212
+    hmat[ncells,0] = -sigma_s12
     fmat[0,0] = nf1
     fmat[0,ncells] = nf2
 
@@ -80,12 +81,13 @@ def build_matrix(problem):
     d2N = mat_properties[mesh['materials'][-1]]['D2']
     D2nN = dtilde(d2n,d2N,delta)
     #D1N is the D-tilde used in the matrix
-    D1N = -2*d1N/delta*(1/(1+4*d1N))
-    D2N = -2*d2N/delta*(1/(1+4*d2N))
+    D1N = 2*d1N/delta*(1/(1+4*d1N/delta))
+    D2N = 2*d2N/delta*(1/(1+4*d2N/delta))
     hmat[ncells-1,ncells-2] = -D1nN
-    hmat[ncells-1,ncells-1] = -sigma_r1N+D1N+D1nN
+    hmat[ncells-1,ncells-1] = sigma_r1N*delta+D1N+D1nN
     hmat[2*ncells-1,2*ncells-2] = -D2nN
-    hmat[2*ncells-1,2*ncells-1] = -sigma_a2+D2N+D2nN
+    hmat[2*ncells-1,2*ncells-1] = sigma_a2*delta+D2N+D2nN
+    hmat[2*ncells-1,ncells-1] = -sigma_s12
     fmat[ncells-1,ncells-1] = nf1
     fmat[ncells-1,2*ncells-1] = nf2
 
@@ -131,9 +133,10 @@ def build_matrix(problem):
         nf2 =  mat_properties[mesh['materials'][cell]]['NF2']
         hmat[index,index-1] = -D2lc 
         hmat[index,index]   = sigma_r1n + D2lc + D2cr
+        hmat[index,cell] = -sigma_s12
         hmat[index,index+1] = -D2cr
 
-    return hmat, fmat
+    return hmat, fmat, ncells
 
         
 
