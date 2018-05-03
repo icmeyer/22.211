@@ -132,7 +132,7 @@ def build_matrix(problem):
         nf1 =  mat_properties[mesh['materials'][cell]]['NF1']
         nf2 =  mat_properties[mesh['materials'][cell]]['NF2']
         hmat[index,index-1] = -D2lc 
-        hmat[index,index]   = sigma_r1n + D2lc + D2cr
+        hmat[index,index]   = sigma_a2 + D2lc + D2cr
         hmat[index,cell] = -sigma_s12
         hmat[index,index+1] = -D2cr
 

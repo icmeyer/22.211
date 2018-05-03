@@ -11,11 +11,12 @@
 #                                                                    #
 #     Diffusion Actually Isn't So Yucky                              #
 ######################################################################
-import materials
+from materials import mat_properties
 import numpy as np
 import matplotlib.pyplot as plt
 from build_matrix import build_matrix
-from power import power_iteration
+from power import power_iteration, normalize
+from math import pi
 """
 1D - 2 Group - Diffusion Equation Solver
 
@@ -42,13 +43,44 @@ problem_statement = {'1': {'1': [300,5.0,'1']},
                      'test': {'1': [3,1.0,'1']}
                      }
 
-problem = problem_statement['5']
-hmat, fmat , ncells= build_matrix(problem)
-phi_guess = np.ones([2*ncells])/(2*ncells)
+problem = '5'
+statement = problem_statement[problem]
+hmat, fmat , ncells= build_matrix(statement)
+print(hmat)
+plt.spy(hmat)
+plt.show()
+plt.spy(fmat)
+plt.show()
+phi_guess = np.ones([2*ncells])
 k_guess = 1
-phi, k, counter = power_iteration(hmat,fmat,phi_guess,k_guess,ncells)
+phi,k,counter,b = power_iteration(hmat,fmat,phi_guess,k_guess,ncells)
 phi1 = phi[:ncells]
 phi2 = phi[ncells:]
+fissionsource = b[:ncells]+b[ncells:]
+
+# Analytic solution for problem 1
+width = 300
+x = np.linspace(0,width,ncells)
+bg = (pi/width)
+sigma_s12 =  mat_properties['1']['S12']
+sigma_a1  =  mat_properties['1']['A1'] 
+sigma_a2  =  mat_properties['1']['A2'] 
+sigma_r1  = sigma_a1+sigma_s12
+d1 = mat_properties['1']['D1']
+d2 = mat_properties['1']['D2']
+nf1 =  mat_properties['1']['NF1']
+nf2 =  mat_properties['1']['NF2']
+kanal = (nf1/(sigma_r1+d1*bg**2) +
+        sigma_s12/(sigma_r1+d1*bg**2)*nf2/(sigma_a2+d2*bg**2))
+phi1anal = np.cos(pi*(x-width/2)/width)
+phi2anal = phi1anal*(sigma_s12/(d2*(pi/width)**2+sigma_a2))
+phitotanal = np.concatenate([phi1anal,phi2anal])
+#Normalizing
+phitotanal = normalize(phitotanal)
+phi1anal=phitotanal[ncells:]
+phi2anal=phitotanal[:ncells]
+print("Analytical keff is:", kanal)
+
 
 # print(hmat)
 # plt.spy(hmat)
@@ -56,9 +88,19 @@ phi2 = phi[ncells:]
 # print(fmat)
 # plt.spy(fmat)
 # plt.show()
-x = np.linspace(0,300,ncells)
+width = 300
+x = np.linspace(0,width,ncells)
 plt.plot(x,phi1)
 plt.plot(x,phi2)
-plt.title('k='+str(k))
+plt.legend(['Group 1','Group 2'])
+if problem == '1':
+    plt.plot(x,phi1anal,'.')
+    plt.plot(x,phi2anal,'.')
+    plt.legend(['Group 1 Numerical','Group 2 Numerical','Group 1 Analytical',
+                'Group 2 Analytical'])
+plt.title('k='+str(k)+' with '+str(counter)+' iterations')
+plt.show()
+plt.plot(x,fissionsource)
+plt.title('Fission Density')
 plt.show()
 
