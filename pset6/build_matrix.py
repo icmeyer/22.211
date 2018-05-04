@@ -2,7 +2,7 @@ import numpy as np
 from materials import mat_properties
 
 def dtilde(d1,d2,delta):
-    return d1*d2/(delta*(d1+d2))
+    return 2*d1*d2/(delta*(d1+d2))
 
 def build_matrix(problem):
     """
@@ -61,9 +61,9 @@ def build_matrix(problem):
     hmat[0,1] = -D112
     hmat[ncells,ncells] = sigma_a2*delta+D21+D212
     hmat[ncells,ncells+1] = -D212
-    hmat[ncells,0] = -sigma_s12
-    fmat[0,0] = nf1
-    fmat[0,ncells] = nf2
+    hmat[ncells,0] = -sigma_s12*delta
+    fmat[0,0] = nf1*delta
+    fmat[0,ncells] = nf2*delta
 
     #Last Line
     delta = mesh['spacing'][-1]
@@ -87,9 +87,9 @@ def build_matrix(problem):
     hmat[ncells-1,ncells-1] = sigma_r1N*delta+D1N+D1nN
     hmat[2*ncells-1,2*ncells-2] = -D2nN
     hmat[2*ncells-1,2*ncells-1] = sigma_a2*delta+D2N+D2nN
-    hmat[2*ncells-1,ncells-1] = -sigma_s12
-    fmat[ncells-1,ncells-1] = nf1
-    fmat[ncells-1,2*ncells-1] = nf2
+    hmat[2*ncells-1,ncells-1] = -sigma_s12*delta
+    fmat[ncells-1,ncells-1] = nf1*delta
+    fmat[ncells-1,2*ncells-1] = nf2*delta
 
     # Building upper half of matrix for energy group 1
     for i in range(ncells-2):
@@ -109,10 +109,10 @@ def build_matrix(problem):
         nf1 =  mat_properties[mesh['materials'][cell]]['NF1']
         nf2 =  mat_properties[mesh['materials'][cell]]['NF2']
         hmat[index,index-1] = -D1lc 
-        hmat[index,index]   = sigma_r1n + D1lc + D1cr
+        hmat[index,index]   = sigma_r1n*delta + D1lc + D1cr
         hmat[index,index+1] = -D1cr
-        fmat[index,index] = nf1
-        fmat[index,index+ncells] = nf2
+        fmat[index,index] = nf1*delta
+        fmat[index,index+ncells] = nf2*delta
 
     # Building lower half of matrix for energy group 2
     for i in range(ncells-2):
@@ -132,8 +132,8 @@ def build_matrix(problem):
         nf1 =  mat_properties[mesh['materials'][cell]]['NF1']
         nf2 =  mat_properties[mesh['materials'][cell]]['NF2']
         hmat[index,index-1] = -D2lc 
-        hmat[index,index]   = sigma_a2 + D2lc + D2cr
-        hmat[index,cell] = -sigma_s12
+        hmat[index,index]   = sigma_a2*delta + D2lc + D2cr
+        hmat[index,cell] = -sigma_s12*delta
         hmat[index,index+1] = -D2cr
 
     return hmat, fmat, ncells
