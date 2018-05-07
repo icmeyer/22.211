@@ -36,11 +36,9 @@ def power_iteration(hmat,fmat,phi_guess,k_guess,ncells):
         if checktol(kold,knew,tol=1e-7):
             phi = normalize(phinew)
             b = normalize(b)
-            fissionsource = b
             return phi,knew,counter,b
         if checkrms(phioldsum,phinewsum,tol=1e-5):
             phi = normalize(phinew)
-            print(sum(phi))
             b = normalize(b)
             return phi,knew,counter,b
         kold = knew
