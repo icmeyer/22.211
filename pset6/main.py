@@ -56,6 +56,7 @@ run = ['3']
 run = ['test']
 run = ['1','2','3','4','5']
 for i in run:
+    width = 300
     problem = i
     statement = problem_statement[problem]
     hmat, fmat , ncells= build_matrix(statement)
@@ -80,15 +81,22 @@ for i in run:
     fissionsource = fissionsource/np.average(fissionsource)
     #Peak is calculated as maximum when averaged over fuel
     peak=np.amax(fissionsource)
-    print(fissionsource.shape)
     nfuelcells = fissionsource.shape[0]
     # Repad with zeros for plotting
     zeropad = int((ncells-nfuelcells)/2)
     fissionsource = np.concatenate([np.zeros(zeropad),fissionsource,
                                     np.zeros(zeropad)])
-    print(np.average(fissionsource))
+    #Find distance of peak from center
+    maxindex = np.argmax(fissionsource)
+    delta = statement['1'][1]
+    #Assuming that problems are symmetrical
+    maxdistance = width/2-maxindex*delta
+    #If the max is next to the center and both center values are the same
+    #set the distance from center as 0
+    samecenter=abs(fissionsource[maxindex]-fissionsource[maxindex+1])<0.001
+    if maxdistance==delta and samecenter:
+        maxdistance=0
     
-    width = 300
     x = np.linspace(0,width,ncells)
     plt.subplot(121)
     plt.plot(x,phi1)
@@ -130,7 +138,9 @@ for i in run:
     plt.plot(x,fissionsource)
     plt.xlabel('x position [cm]')
     plt.ylabel('Fission Source (Average = 1)')
-    plt.title('Fission Density, Peak='+str(peak))
+    title=('Fission Density, Peak='+str(peak)+
+           ' at '+str(maxdistance)+' cm from center')
+    plt.title(title)
     plt.show()
 
 
@@ -194,6 +204,8 @@ if runbaffles == True:
     plt.ylabel('Peak of Fission Source (Average=1)')
     plt.subplot(122)
     plt.plot(widths,keffs)
+    data = np.concatenate([widths,keffs])
+    np.savetxt('results.txt',data)
     plt.xlabel('Baffle Width (cm)')
     plt.ylabel('k_eff')
     plt.show()

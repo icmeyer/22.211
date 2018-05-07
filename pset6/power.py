@@ -3,7 +3,7 @@ def normalize(x):
     """Used to normalize vectors."""
     try:
         x = x/np.linalg.norm(x)
-    else: 
+    except: 
         x = 0
     return x
 
