@@ -8,10 +8,12 @@ def inv_polar(xi):
     return mu
 
 trials = int(1e6)
-mu_sum = 0
+mus = np.empty(trials)
 for i in range(trials):
     xi = rand()
-    mu = inv_polar(xi)
-    mu_sum += mu
-print("Average:",mu_sum/trials)
+    mus[i] = inv_polar(xi)
 
+print("Average:  ", mus.mean())
+print("Variance: ", mus.var())
+plt.hist(mus, 100)
+plt.show()
