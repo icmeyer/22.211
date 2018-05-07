@@ -24,7 +24,10 @@ mpl.rcParams['figure.figsize'] = [12.0, 6.0]
 1D - 2 Group - Diffusion Equation Solver
 
 This is the main script of the solver. It will have dependencies
-on other files in order to run.
+on the following files:
+    build_matrix.py: matrix constructor
+    materials.py: contains material information for the problems
+    power.py: power-iteration solver for dominant eigenvalue/fuction
 """
 runbaffles = True
 gif = False

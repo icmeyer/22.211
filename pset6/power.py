@@ -1,9 +1,15 @@
 import numpy as np
 def normalize(x):
-    x = x/np.linalg.norm(x)
+    """Used to normalize vectors."""
+    try:
+        x = x/np.linalg.norm(x)
+    else: 
+        x = 0
     return x
 
 def checktol(x,y,tol):
+    """Check absolute difference between two values and compare to 
+    a defined tolerance. Return boolean. """
     err = abs(x-y)/x
     if err<tol:
         return True
@@ -11,6 +17,8 @@ def checktol(x,y,tol):
         return False
 
 def checkrms(x,y,tol):
+    """Calculate RMS error and compare to a defined tolerance. Return 
+    boolean. """
     n = len(x)
     rms = ((1/n)*np.sum(((x-y)/y)**2))**(1/2)
     if rms<tol:
@@ -19,6 +27,35 @@ def checkrms(x,y,tol):
         return False
 
 def power_iteration(hmat,fmat,phi_guess,k_guess,ncells):
+    """Power iteration solver for two group diffusion. 
+    Solves diffusion problem: H*phi=F*phi
+
+    Paramaters
+    ----------
+    hmat: numpy.ndarray
+        Matrix with dimensions [2*ncells,2*ncells]
+    fmat: numpy.ndarray
+        Matrix with dimensions [2*ncells,2*ncells]
+    phi_guess : numpy.ndarray
+        Vector with length 2*ncells, first half is group1, second is group2
+    k_guess: float
+        Scalar guess of dominant eigenvalue
+    ncells: int
+        Number of cells in diffusion problem
+
+    Returns
+    -------
+    numpy.ndarray
+        Vector with length 2*ncells with dominant eigenfunction
+    float
+        Dominant eigenvalue [k_eff]
+    int
+        Number of iterations to converge
+    numpy.ndarray
+        Vector with length 2*nells with fission source (1/k)*(F*phi)
+    """
+
+
     phi_guess = normalize(phi_guess)
     b = (1/k_guess)*np.dot(fmat,phi_guess)
     kold = k_guess

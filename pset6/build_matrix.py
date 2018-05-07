@@ -2,10 +2,13 @@ import numpy as np
 from materials import mat_properties
 
 def dtilde(d1,d2,delta):
+    """ Caculate dtilde from d^(n-1) and d^n for finite differnce method"""
     return 2*d1*d2/(delta*(d1+d2))
 
 def build_matrix(problem):
     """
+    Build the H and F matrix for a two-group diffusion problem.
+
     Parameters
     ----------
     problem : Dictionary
