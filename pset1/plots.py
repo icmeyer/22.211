@@ -14,34 +14,14 @@ plot_3c = True
 
 if plot_1a:
     points = 100000
-    energies = np.linspace(0.01,100,points); temp = 0;
-    plt.subplot(2,1,1)
+    energies = np.linspace(0.01,100,points); temp = 1000;
     capture_xs, elastic_xs, total_xs = full_xs(energies,temp)
-    plt.loglog(energies,capture_xs,'C0')
-    plt.loglog(energies,elastic_xs,'C1')
-    plt.loglog(energies,total_xs,'C2')
-    leg = plt.legend(['Radiative Capture','Elastic Scattering','Total'])
-    leg.legendHandles[0].set_color('C0')
-    leg.legendHandles[1].set_color('C1')
-    leg.legendHandles[2].set_color('C2')
+    plt.loglog(energies,capture_xs,'C0', linewidth=5.0)
     plt.xlabel('Energy [eV]')
     plt.ylabel('Cross Section [barns]')
     plt.title(str(temp)+' K Cross Sections')
-    
-    energies = np.linspace(0.01,100,points); temp = 1000;
-    plt.subplot(2,1,2)
-    capture_xs, elastic_xs, total_xs = full_xs(energies,temp)
-    plt.loglog(energies,capture_xs,'C0')
-    plt.loglog(energies,elastic_xs,'C1')
-    plt.loglog(energies,total_xs,'C2')
-    leg = plt.legend(['Radiative Capture','Elastic Scattering','Total'])
-    leg.legendHandles[0].set_color('C0')
-    leg.legendHandles[1].set_color('C1')
-    leg.legendHandles[2].set_color('C2')
-    plt.xlabel('Energy [eV]')
-    plt.ylabel('Cross Section [barns]')
-    plt.title('1000 K Cross Sections')
     plt.show()
+    
     
     #Plot single cross section to check
     # points = 100000
@@ -89,7 +69,7 @@ if plot_3a or plot_3b:
     ax = plt.subplot(2,1,1)
     ax.set_xscale("log", nonposx='clip')
     legend_string = []
-    neutrons = 20000; logemin = 0; logemax = 2; nbins = 75;
+    neutrons = 200000; logemin = 0; logemax = 2; nbins = 75;
     mf_ratio = 10; 
     e_bins1,e_freq1,abs_ratio = zerod_mc(mf_ratio, temp, neutrons, logemin, logemax, nbins)
     plt.step(e_bins1,e_freq1)
@@ -122,16 +102,17 @@ if plot_3c:
     ax = plt.subplot(1,1,1)
     ax.set_xscale("log", nonposx='clip')
     legend_string = []
+    # neutrons = 100000; logemin = 0; logemax = 2; nbins = 75; temp = 1000;
     neutrons = 100000; logemin = 0; logemax = 2; nbins = 75; temp = 1000;
     mf_ratio = 1000;
-    components = ['psi', 'chi', 'pot']
-    for i in range(3):
-        e_bins,e_freq,abs_ratio,scat_freq = zerod_mc(mf_ratio, temp, neutrons, logemin, logemax, nbins, pick_comp=[True,components[i]])
-        plt.step(e_bins,scat_freq)
-        legend_string.append(components[i])
+    components = ['Total', 'psi', 'chi', 'pot']
+    e_bins,e_freq,abs_ratio,scat_freq, comp_wise = zerod_mc(mf_ratio, temp, neutrons, logemin, logemax, nbins, by_component=True)
+    plt.step(e_bins, scat_freq)
+    for component in comp_wise:
+        plt.step(e_bins, component)
     plt.xlabel('Energy (eV)')
     plt.ylabel('Scatters (#/src neutron)')
-    plt.legend(legend_string)
+    plt.legend(components)
     plt.title('T='+str(temp)+' K  M/F Ratio='+str(mf_ratio))
     plt.show()
 # e_bin_width = np.zeros([len(e_bins)])
