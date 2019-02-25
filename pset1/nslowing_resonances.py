@@ -4,7 +4,7 @@ from math import log
 from res_construction import xs_from_res
 
 
-def zerod_mc(mf_ratio,temp, neutrons, logemin, logemax, nbins, pick_res=[False,0], pick_comp=[False,'']):
+def zerod_mc(mf_ratio,temp, neutrons, logemin, logemax, nbins, pick_res=[False,0], by_component=False):
     #Resonances used in this problem
     res_E = [6.673491e+0, 2.087152e+1, 3.668212e+1]
     J = [5.000000e-1, 5.000000e-1, 5.000000e-1]
@@ -20,10 +20,7 @@ def zerod_mc(mf_ratio,temp, neutrons, logemin, logemax, nbins, pick_res=[False,0
         gg    =  [gg[index]]    
         gfa   =  [gfa[index]]   
         gfb   =  [gfb[index]]
-    if pick_comp[0]:
-        comp = pick_comp[1]
-    else:
-        comp = 'all'
+    comp = 'all'
     ap = 0.948 #[barns]
     A = 238
     
@@ -60,7 +57,31 @@ def zerod_mc(mf_ratio,temp, neutrons, logemin, logemax, nbins, pick_res=[False,0
     e_freq = np.concatenate([[0],e_freq])/neutrons
     scat_freq = np.concatenate([[0],scat_freq])/neutrons
     abs_ratio = captures/neutrons
-    if pick_res[0] or pick_comp[0]:
+    if pick_res[0]:
         return e_bins,e_freq,abs_ratio,scat_freq
+    elif by_component:
+        elastic_xs_tot = xs_from_res(ap,A,res_E,J,gn,gg,gfa,gfb,temp,e_bins,reaction='elastic')
+        capture_xs_tot = xs_from_res(ap,A,res_E,J,gn,gg,gfa,gfb,temp,e_bins,reaction='capture')
+        xs_tot = elastic_xs_tot + capture_xs_tot
+
+        elastic_xs_psi = xs_from_res(ap,A,res_E,J,gn,gg,gfa,gfb,temp,e_bins,reaction='elastic',comp='psi')
+        psi_frac = elastic_xs_psi/xs_tot
+        elastic_xs_chi = xs_from_res(ap,A,res_E,J,gn,gg,gfa,gfb,temp,e_bins,reaction='elastic',comp='chi')
+        chi_frac = elastic_xs_chi/xs_tot
+        elastic_xs_pot = xs_from_res(ap,A,res_E,J,gn,gg,gfa,gfb,temp,e_bins,reaction='elastic',comp='pot')
+        pot_frac = elastic_xs_pot/xs_tot
+
+        # Used to check the fractional components
+        # plt.step(e_bins,psi_frac)
+        # plt.step(e_bins,chi_frac)
+        # plt.step(e_bins,pot_frac)
+        # plt.step(e_bins,pot_frac+chi_frac+psi_frac)
+        # plt.show()
+
+        comp_wise = []
+        comp_wise.append(e_freq*psi_frac)
+        comp_wise.append(e_freq*chi_frac)
+        comp_wise.append(e_freq*pot_frac)
+        return e_bins, e_freq, abs_ratio, scat_freq, comp_wise
     else:
         return e_bins,e_freq,abs_ratio

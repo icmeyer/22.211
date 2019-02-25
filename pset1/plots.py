@@ -6,6 +6,17 @@ from nslowing_resonances import zerod_mc
 from slbw import full_xs
 from nslowing import nslowing
 
+#Resonance data
+res_E = [6.673491e+0, 2.087152e+1, 3.668212e+1]
+J = [5.000000e-1, 5.000000e-1, 5.000000e-1]
+gn = [1.475792e-3, 1.009376e-2, 3.354568e-2]
+gg = [2.300000e-2, 2.286379e-2, 2.300225e-2]
+gfa = [0.000000, 5.420000e-8, 0.000000]
+gfb = [9.990000e-9, 0.000000, 9.770000e-9]
+ap = 0.948 #[barns]
+A = 238
+
+
 plot_1a = False
 plot_2abc = False
 plot_3a = False
@@ -99,14 +110,14 @@ if plot_3a or plot_3b:
     plt.show()
 
 if plot_3c:
-    ax = plt.subplot(1,1,1)
-    ax.set_xscale("log", nonposx='clip')
-    legend_string = []
     # neutrons = 100000; logemin = 0; logemax = 2; nbins = 75; temp = 1000;
-    neutrons = 100000; logemin = 0; logemax = 2; nbins = 75; temp = 1000;
+    neutrons = 100; logemin = 0; logemax = 2; nbins = 75; temp = 1000;
     mf_ratio = 1000;
     components = ['Total', 'psi', 'chi', 'pot']
     e_bins,e_freq,abs_ratio,scat_freq, comp_wise = zerod_mc(mf_ratio, temp, neutrons, logemin, logemax, nbins, by_component=True)
+    ax = plt.subplot(1,1,1)
+    ax.set_xscale("log", nonposx='clip')
+    ax.set_yscale("log", nonposy='clip')
     plt.step(e_bins, scat_freq)
     for component in comp_wise:
         plt.step(e_bins, component)
@@ -115,6 +126,24 @@ if plot_3c:
     plt.legend(components)
     plt.title('T='+str(temp)+' K  M/F Ratio='+str(mf_ratio))
     plt.show()
+
+    # Plot the the components of the xs
+    elastic_xs_psi = xs_from_res(ap,A,res_E,J,gn,gg,gfa,gfb,temp,e_bins,reaction='elastic',comp='psi')
+    elastic_xs_chi = xs_from_res(ap,A,res_E,J,gn,gg,gfa,gfb,temp,e_bins,reaction='elastic',comp='chi')
+    elastic_xs_pot = xs_from_res(ap,A,res_E,J,gn,gg,gfa,gfb,temp,e_bins,reaction='elastic',comp='pot')
+    
+    ax = plt.subplot(1,1,1)
+    ax.set_xscale("log", nonposx='clip')
+    ax.set_yscale("log", nonposy='clip')
+    plt.step(e_bins, elastic_xs_pot)
+    plt.step(e_bins, elastic_xs_psi)
+    plt.step(e_bins, elastic_xs_chi)
+    plt.legend(['pot','psi','chi'])
+    plt.title('Scattering Components')
+    plt.xlabel('eV')
+    plt.ylabel('barns')
+    plt.show()
+
 # e_bin_width = np.zeros([len(e_bins)])
 # for i in range(len(e_bins)-2):
 #     e_bin_width[i+1] = e_bins[i+2]-e_bins[i+1]
